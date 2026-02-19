@@ -24,6 +24,7 @@ Personal portfolio website with focus on security best practices.
 - Rust 1.75+
 - Node.js 20+
 - SQLite3
+- Build tools: 'sudo apt install build-essential' (Ubuntu/Debian)
 
 ### Setup
 
