@@ -1,0 +1,25 @@
+#Secrets - highest priority
+.env
+.env.*
+!.env.example
+*.pem
+*.pem
+*.key
+*.p12
+secrets/
+
+#Rust
+target/
+Cargo.lock
+
+#Node
+node_modules/
+.svelte-kit/
+build/
+dist/
+.vite/
+
+#System
+.DS_Store
+.idea/
+.vscode/
