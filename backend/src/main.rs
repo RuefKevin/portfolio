@@ -13,7 +13,7 @@ async fn main()
         .route("/health", get(health))
         .layer(SetResponseHeaderLayer::overriding
         (
-            HeaderName::from_static("x-content-type-option"),
+            HeaderName::from_static("x-content-type-options"),
             HeaderValue::from_static("nosniff"),
         ))
         .layer(SetResponseHeaderLayer::overriding
