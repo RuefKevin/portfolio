@@ -1,6 +1,17 @@
 use axum::{routing::get, Router};
 use tower_http::set_header::SetResponseHeaderLayer;
 use axum::http::{HeaderName, HeaderValue};
+use axum::Json;
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct Project
+{
+    id: u32,
+    name: String,
+    description: String,
+    technologies: Vec<String>,
+}
 
 #[tokio::main]
 async fn main()
@@ -11,6 +22,7 @@ async fn main()
 
     let app = Router::new()
         .route("/health", get(health))
+        .route("/api/projects", get(projects))
         .layer(SetResponseHeaderLayer::overriding
         (
             HeaderName::from_static("x-content-type-options"),
@@ -33,4 +45,21 @@ async fn main()
 async fn health() -> &'static str
 {
     "ok"
+}
+
+async fn projects() -> Json<Vec<Project>>
+{
+    Json
+    (
+        vec!
+        [
+            Project
+            {
+                id: 1,
+                name: "Portfolio Backend".to_string(),
+                description: "Rust/Axum REST API with security focus".to_string(),
+                technologies: vec!["Rust".to_string(), "Axum".to_string(), "SQLite".to_string()],
+            }
+        ]
+    )
 }
