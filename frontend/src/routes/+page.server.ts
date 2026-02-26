@@ -1,8 +1,18 @@
 import type { PageServerLoad } from './$types';
+import { BACKEND_URL } from '$env/static/private';
 
 export const load: PageServerLoad = async () =>
 {
-    const response = await fetch('http://127.0.0.1:3000/api/projects');
-    const projects = await response.json();
-    return { projects };
+    try
+    {
+        const response = await fetch(`${BACKEND_URL}/api/projects`);
+        console.log(`[${response.status}] GET ${BACKEND_URL}/api/projects`);
+        const projects = await response.json();
+        return { projects };
+    }
+    catch (error)
+    {
+        console.error('Fetch error:', error);
+        return { projects: [] };
+    }
 };
