@@ -3,14 +3,12 @@
 .env.*
 !.env.example
 *.pem
-*.pem
 *.key
 *.p12
 secrets/
 
 #Rust
 target/
-Cargo.lock
 
 #Node
 node_modules/
@@ -23,3 +21,9 @@ dist/
 .DS_Store
 .idea/
 .vscode/
+
+#Database
+*.db
+*.sqlite
+*.db-shm
+*.db-wal
