@@ -1,0 +1,76 @@
+use axum::{extract::State, routing::get, Router, Json};
+use tower_http::set_header::SetResponseHeaderLayer;
+use axum::http::{HeaderName, HeaderValue};
+use serde::{Deserialize, Serialize};
+use sqlx::sqlite::SqlitePool;
+
+#[derive(Serialize, Deserialize)]
+pub struct Project
+{
+    pub id: u32,
+    pub name: String,
+    pub description: String,
+    pub technologies: Vec<String>,
+}
+
+struct DbProject
+{
+    id: i64,
+    name: String,
+    description: String,
+    technologies: String,
+}
+
+#[derive(Clone)]
+pub struct AppState
+{
+    pub db: SqlitePool,
+}
+
+pub fn app(state: AppState) -> Router
+{
+    Router::new()
+        .route("/health", get(health))
+        .route("/api/projects", get(projects))
+        .layer(SetResponseHeaderLayer::overriding
+        (
+            HeaderName::from_static("x-content-type-options"),
+            HeaderValue::from_static("nosniff"),
+        ))
+        .layer(SetResponseHeaderLayer::overriding
+        (
+            HeaderName::from_static("x-frame-options"),
+            HeaderValue::from_static("DENY"),
+        ))
+        .with_state(state)
+}
+
+async fn health() -> &'static str
+{
+    "ok"
+}
+
+async fn projects(State(state): State<AppState>) -> Json<Vec<Project>>
+{
+    let db_projects = sqlx::query_as!
+    (
+        DbProject,
+        "SELECT id, name, description, technologies FROM projects"
+    )
+    .fetch_all(&state.db)
+    .await
+    .unwrap();
+
+    let projects: Vec<Project> = db_projects
+        .into_iter()
+        .map(|p| Project
+        {
+            id: p.id as u32,
+            name: p.name,
+            description: p.description,
+            technologies: p.technologies.split(',').map(|s| s.trim().to_string()).collect(),
+        })
+        .collect();
+
+    Json(projects)
+}
