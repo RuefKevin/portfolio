@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { BACKEND_URL } from '$env/static/private';
 
-export const load: PageServerLoad = async () =>
+export const load: PageServerLoad = async ({ fetch }) =>
 {
     try
     {
