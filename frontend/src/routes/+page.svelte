@@ -5,7 +5,7 @@
 
 <h1>Projects</h1>
 
-{#each data.projects as project}
+{#each data.projects as project (project.id)}
 	<div>
 		<h2>{project.name}</h2>
 		<p>{project.description}</p>

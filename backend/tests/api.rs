@@ -60,12 +60,12 @@ async fn test_get_projects_returns_db_data()
 {
     let pool = setup_test_db().await;
 
-    sqlx::query!("DELETE FROM projects")
+    sqlx::query("DELETE FROM projects")
         .execute(&pool)
         .await
         .expect("Failed to clear projects table");
 
-    sqlx::query!("INSERT INTO projects (name, description, technologies) VALUES ('Sec-Portfolio', 'Test desc', 'Rust, Svelte')")
+    sqlx::query("INSERT INTO projects (name, description, technologies) VALUES ('Sec-Portfolio', 'Test desc', 'Rust, Svelte')")
         .execute(&pool)
         .await
         .expect("Failed to insert test project");

@@ -1,7 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
 import { load } from './+page.server';
-import { BACKEND_URL } from '$env/static/private';
-import type { ServerLoadEvent } from '@sveltejs/kit';
 
 vi.mock('$env/static/private', () => ({
 	BACKEND_URL: 'http://mocked-backend:3000'
