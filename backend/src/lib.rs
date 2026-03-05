@@ -1,6 +1,7 @@
 use axum::{Json, Router, extract::State, http::StatusCode, routing::get};
 use tower_http::set_header::SetResponseHeaderLayer;
-use axum::http::{HeaderName, HeaderValue};
+use tower_http::cors::CorsLayer;
+use axum::http::{HeaderName, HeaderValue, Method};
 use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqlitePool;
 
@@ -27,11 +28,17 @@ pub struct AppState
     pub db: SqlitePool,
 }
 
-pub fn app(state: AppState) -> Router
+pub fn app(state: AppState, allowed_origins: Vec<HeaderValue>) -> Router
 {
+    let cors = CorsLayer::new()
+        .allow_origin(allowed_origins)
+        .allow_methods([Method::GET])
+        .allow_headers([axum::http::header::CONTENT_TYPE]);
+
     Router::new()
         .route("/health", get(health))
         .route("/api/projects", get(projects))
+        .layer(cors)
         .layer(SetResponseHeaderLayer::overriding
         (
             HeaderName::from_static("x-content-type-options"),

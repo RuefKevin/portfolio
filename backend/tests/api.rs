@@ -2,12 +2,18 @@ use backend::{app, AppState, Project};
 
 use axum::
 {
+    Router,
     body::Body,
     http::{Request, StatusCode},
 };
 use http_body_util::BodyExt;
 use sqlx::sqlite::SqlitePool;
 use tower::ServiceExt;
+
+fn test_app(pool: SqlitePool) -> Router 
+{
+    app(AppState { db: pool }, vec![])
+}
 
 async fn setup_test_db() -> SqlitePool
 {
@@ -25,7 +31,7 @@ async fn setup_test_db() -> SqlitePool
 async fn test_health_check()
 {
     let pool = setup_test_db().await;
-    let router = app(AppState{ db: pool});
+    let router = test_app(pool);
 
     let response = router
         .oneshot(Request::builder().uri("/health").body(Body::empty()).unwrap())
@@ -39,7 +45,7 @@ async fn test_health_check()
 async fn test_security_headers_are_present()
 {
     let pool = setup_test_db().await;
-    let router = app(AppState{ db: pool});
+    let router = test_app(pool);
 
     let response = router
         .oneshot(Request::builder().uri("/health").body(Body::empty()).unwrap())
@@ -64,7 +70,7 @@ async fn test_get_projects_returns_db_data()
         .await
         .unwrap();
 
-    let router = app(AppState { db: pool });
+    let router = test_app(pool);
 
     let response = router
         .oneshot(Request::builder().uri("/api/projects").body(Body::empty()).unwrap())
