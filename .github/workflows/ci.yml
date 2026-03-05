@@ -45,10 +45,14 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            - name: Install Rust
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Install cargo-audit
+              run: cargo install cargo-audit --locked
+
             - name: Cargo Audit
-              uses: rustsec/audit-check@v2
-              with:
-                token: ${{ secrets.GITHUB_TOKEN }}
+              run: cd backend && cargo audit
 
     frontend-build:
       name: Frontend Build & Type Check
@@ -67,6 +71,8 @@ jobs:
             run: cd frontend && npm ci
 
           - name: Type Check
+            env:
+              BACKEND_URL: http://localhost:3000
             run: cd frontend && npm run check
 
           - name: Lint

@@ -63,13 +63,12 @@ async fn test_get_projects_returns_db_data()
     sqlx::query!("DELETE FROM projects")
         .execute(&pool)
         .await
-        .unwrap();
-    
+        .expect("Failed to clear projects table");
+
     sqlx::query!("INSERT INTO projects (name, description, technologies) VALUES ('Sec-Portfolio', 'Test desc', 'Rust, Svelte')")
         .execute(&pool)
         .await
-        .unwrap();
-
+        .expect("Failed to insert test project");
     let router = test_app(pool);
 
     let response = router
