@@ -25,11 +25,11 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -s /bin/bash appuser
+
 USER appuser
 WORKDIR /home/appuser
 
 COPY --from=builder /usr/src/app/target/release/backend ./backend
-
 COPY --from=builder /usr/src/app/migrations ./migrations
 
 EXPOSE 3000

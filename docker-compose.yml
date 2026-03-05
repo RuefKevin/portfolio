@@ -1,0 +1,36 @@
+services:
+  backend-init:
+    build: ./backend
+    volumes:
+      - db-data:/data
+    user: root
+    command: chown -R appuser:appuser /data
+
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3001
+      DATABASE_URL: sqlite:///data/portfolio.db
+    volumes:
+      - db-data:/data
+    expose:
+      - "3000"
+    depends_on:
+      backend-init:
+        condition: service_completed_successfully
+
+  frontend:
+    build: ./frontend
+    env_file: ./frontend/.env
+    environment:
+      BACKEND_URL: http://backend:3001
+      HOST: 0.0.0.0
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  db-data:

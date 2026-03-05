@@ -1,7 +1,8 @@
 use backend::{app, AppState};
 
 use axum::http::HeaderValue;
-use sqlx::sqlite::SqlitePool;
+use sqlx::sqlite::SqlitePoolOptions;
+use std::str::FromStr;
 
 #[tokio::main]
 async fn main()
@@ -12,9 +13,19 @@ async fn main()
 
     //Datenbank-Verbindung aufbauen
     let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env");
-    let pool = SqlitePool::connect(&db_url).await.unwrap();
+    let pool = SqlitePoolOptions::new()
+    .max_connections(1)
+    .connect_with(
+        sqlx::sqlite::SqliteConnectOptions::from_str(&db_url)
+            .unwrap_or_else(|e| panic!("Invalid DB URL: {}", e))
+            .create_if_missing(true)
+    )
+    .await
+    .unwrap_or_else(|e| panic!("DB connect failed: {}", e));
+
     sqlx::migrate!("./migrations").run(&pool).await
         .expect("Migrations fehlgeschlagen");
+
     let state = AppState { db: pool };
 
     let allowed_origins: Vec<HeaderValue> = std::env::var("ALLOWED_ORIGINS")

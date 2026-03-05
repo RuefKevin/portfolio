@@ -1,35 +1,31 @@
 import { describe, it, expect, vi } from 'vitest';
 import { load } from './+page.server';
 
-vi.mock('$env/static/private', () => ({
-	BACKEND_URL: 'http://mocked-backend:3000'
+vi.mock('$env/dynamic/private', () => ({
+    env: { BACKEND_URL: 'http://mocked-backend:3000' }
 }));
 
 describe('Portfolio Page Server Load', () => {
 	it('fetches projects from backend and returns them (Happy Path)', async () => {
-		const mockProjects = [
-			{
-				id: 1,
-				name: 'Mocked Sec-Portfolio',
-				description: 'Test',
-				technologies: ['Svelte']
-			}
-		];
+    const mockProjects = [{
+        id: 1, name: 'Mocked Sec-Portfolio', description: 'Test', technologies: ['Svelte']
+    }];
 
-		const mockFetch = vi.fn().mockResolvedValue({
-			status: 200,
-			json: async () => mockProjects
-		});
+    const mockFetch = vi.fn().mockResolvedValue({
+        status: 200,
+        ok: true,
+        json: async () => mockProjects
+    });
 
-		const mockEvent = { fetch: mockFetch } as unknown as Parameters<typeof load>[0];
+    const mockEvent = { fetch: mockFetch } as unknown as Parameters<typeof load>[0];
 
-		const result = await load(mockEvent);
+    const result = await load(mockEvent);
 
-		if (!result) throw new Error('Expected load to return data');
+    if (!result) throw new Error('Expected load to return data');
 
-		expect(mockFetch).toHaveBeenCalledWith('http://mocked-backend:3000/api/projects');
-
-		expect(result.projects).toEqual(mockProjects);
+    expect(mockFetch).toHaveBeenCalledWith('http://mocked-backend:3000/api/projects');
+    expect(result.projects).toEqual(mockProjects);
+    expect(result.error).toBe(false);
 	});
 
 	it('returns empty array on fetch error (Resilience / Fail-Safe)', async () => {
@@ -48,5 +44,41 @@ describe('Portfolio Page Server Load', () => {
 		expect(consoleSpy).toHaveBeenCalled();
 
 		consoleSpy.mockRestore();
+	});
+
+	it('returns error flag on fetch error (Resilience / Fail-Safe)', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const mockFetch = vi.fn().mockRejectedValue(new Error('Backend offline'));
+    const mockEvent = { fetch: mockFetch } as unknown as Parameters<typeof load>[0];
+
+    const result = await load(mockEvent);
+
+    if (!result) throw new Error('Expected load to return a fallback object');
+
+    expect(result.projects).toEqual([]);
+    expect(result.error).toBe(true);
+
+    consoleSpy.mockRestore();
+	});
+
+	it('returns error flag on non-ok response', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const mockFetch = vi.fn().mockResolvedValue({
+        status: 500,
+        ok: false,
+    });
+
+    const mockEvent = { fetch: mockFetch } as unknown as Parameters<typeof load>[0];
+
+    const result = await load(mockEvent);
+
+	if (!result) throw new Error('Expected load to return a fallback object');
+
+    expect(result.projects).toEqual([]);
+    expect(result.error).toBe(true);
+
+    consoleSpy.mockRestore();
 	});
 });
