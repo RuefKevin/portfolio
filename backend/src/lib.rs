@@ -1,4 +1,4 @@
-use axum::{extract::State, routing::get, Router, Json};
+use axum::{Json, Router, extract::State, http::StatusCode, routing::get};
 use tower_http::set_header::SetResponseHeaderLayer;
 use axum::http::{HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
@@ -50,7 +50,7 @@ async fn health() -> &'static str
     "ok"
 }
 
-async fn projects(State(state): State<AppState>) -> Json<Vec<Project>>
+async fn projects(State(state): State<AppState>) -> Result<Json<Vec<Project>>, StatusCode>
 {
     let db_projects = sqlx::query_as!
     (
@@ -59,7 +59,7 @@ async fn projects(State(state): State<AppState>) -> Json<Vec<Project>>
     )
     .fetch_all(&state.db)
     .await
-    .unwrap();
+    .map_err(|e| {tracing::error!("DB error: {}", e); StatusCode::INTERNAL_SERVER_ERROR })?;
 
     let projects: Vec<Project> = db_projects
         .into_iter()
@@ -72,5 +72,5 @@ async fn projects(State(state): State<AppState>) -> Json<Vec<Project>>
         })
         .collect();
 
-    Json(projects)
+    Ok(Json(projects))
 }
