@@ -13,6 +13,7 @@ tracing = "0.1"
 tracing-subscriber = "0.3"
 dotenvy = "0.15"
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite"] }
+tower_governor = { version = "0.8", features = ["axum"] }
 
 [dev-dependencies]
 http-body-util = "0.1.3"

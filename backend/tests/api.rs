@@ -12,7 +12,7 @@ use tower::ServiceExt;
 
 fn test_app(pool: SqlitePool) -> Router 
 {
-    app(AppState { db: pool }, vec![])
+    app(AppState { db: pool }, vec![], false)
 }
 
 async fn setup_test_db() -> SqlitePool

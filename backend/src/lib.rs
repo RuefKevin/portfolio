@@ -4,6 +4,9 @@ use tower_http::cors::CorsLayer;
 use axum::http::{HeaderName, HeaderValue, Method};
 use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqlitePool;
+use tower_governor::GovernorLayer;
+use tower_governor::governor::GovernorConfigBuilder;
+use std::sync::Arc;
 
 #[derive(Serialize, Deserialize)]
 pub struct Project
@@ -28,14 +31,14 @@ pub struct AppState
     pub db: SqlitePool,
 }
 
-pub fn app(state: AppState, allowed_origins: Vec<HeaderValue>) -> Router
+pub fn app(state: AppState, allowed_origins: Vec<HeaderValue>, rate_limit: bool) -> Router
 {
     let cors = CorsLayer::new()
         .allow_origin(allowed_origins)
         .allow_methods([Method::GET])
         .allow_headers([axum::http::header::CONTENT_TYPE]);
 
-    Router::new()
+    let router = Router::new()
         .route("/health", get(health))
         .route("/api/projects", get(projects))
         .layer(cors)
@@ -49,7 +52,22 @@ pub fn app(state: AppState, allowed_origins: Vec<HeaderValue>) -> Router
             HeaderName::from_static("x-frame-options"),
             HeaderValue::from_static("DENY"),
         ))
-        .with_state(state)
+        .with_state(state);
+
+        if rate_limit 
+        {
+            let governor_config = Arc::new(
+                GovernorConfigBuilder::default()
+                    .per_second(2)
+                    .burst_size(5)
+                    .finish()
+                    .unwrap()
+            );
+            router.layer(GovernorLayer::new(governor_config))
+        } else 
+        {
+            router
+        }
 }
 
 async fn health() -> &'static str
