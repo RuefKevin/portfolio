@@ -8,17 +8,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
 	response.headers.set(
-        'Content-Security-Policy',
-        [
-            "default-src 'self'",
-            "script-src 'self'",
-            "style-src 'self' 'unsafe-inline'",
-            "img-src 'self' data:",
-            "font-src 'self'",
-            "connect-src 'self'",
-            "frame-ancestors 'none'"
-        ].join('; ')
-    );
+		'Content-Security-Policy',
+		[
+			"default-src 'self'",
+			"script-src 'self'",
+			"style-src 'self' 'unsafe-inline'",
+			"img-src 'self' data:",
+			"font-src 'self'",
+			"connect-src 'self'",
+			"frame-ancestors 'none'"
+		].join('; ')
+	);
 
 	//nur in production (https)
 	/*
