@@ -64,8 +64,7 @@ pub fn app(state: AppState, allowed_origins: Vec<HeaderValue>, rate_limit: bool)
                     .unwrap()
             );
             router.layer(GovernorLayer::new(governor_config))
-        } else 
-        {
+        } else {
             router
         }
 }
