@@ -39,7 +39,10 @@ async fn main()
         tracing::warn!("ALLOWED_ORIGINS nicht gesetzt – CORS blockiert alle Browser-Requests");
     }
 
-    let router = app(state, allowed_origins, true);
+    let rate_limit = std::env::var("RATE_LIMIT")
+        .unwrap_or_else(|_| "true".to_string()) == "true";
+
+    let router = app(state, allowed_origins, rate_limit);
     
     //Netzwerk-Binding
     let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".to_string());

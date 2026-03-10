@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+:root {
+	--bg: #0c0c0c;
+	--bg-subtle: #0f0f17;
+	--surface: #111118;
+	--border: #1e1e2e;
+	--border-subtle: #141420;
+	--text: #e8e8f0;
+	--text-muted: #6b6b8a;
+	--text-dim: #333;
+	--accent: #00e5a0;
+	--blue: #4da6ff;
+	--yellow: #f5a623;
+	--red: #ff4d6d;
+	--purple: #a855f7;
+	--rust: #f74c00;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	font-size: 16px;
+	scroll-behavior: smooth;
+}
+
+body {
+	background: var(--bg);
+	color: var(--text);
+	font-family: 'JetBrains Mono', monospace;
+	line-height: 1.6;
+	min-height: 100vh;
+}
+
+a {
+	color: var(--accent);
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+::selection {
+	background: var(--accent);
+	color: var(--bg);
+}
+
+::-webkit-scrollbar {
+	width: 6px;
+}
+::-webkit-scrollbar-track {
+	background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+	background: var(--border);
+	border-radius: 3px;
+}

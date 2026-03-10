@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqlitePool;
 use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
+use tower_governor::key_extractor::SmartIpKeyExtractor;
 use std::sync::Arc;
 
 #[derive(Serialize, Deserialize)]
@@ -58,6 +59,7 @@ pub fn app(state: AppState, allowed_origins: Vec<HeaderValue>, rate_limit: bool)
         {
             let governor_config = Arc::new(
                 GovernorConfigBuilder::default()
+                    .key_extractor(SmartIpKeyExtractor)
                     .per_second(2)
                     .burst_size(5)
                     .finish()

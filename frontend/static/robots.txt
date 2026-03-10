@@ -1,3 +1,18 @@
-# allow crawling everything by default
 User-agent: *
 Disallow:
+
+# AI training crawlers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
