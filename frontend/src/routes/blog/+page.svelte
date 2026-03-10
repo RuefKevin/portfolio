@@ -4,7 +4,6 @@
 </script>
 
 <div class="terminal">
-
 	<div class="block">
 		<div class="line">
 			<span class="prompt">❯</span>
@@ -32,7 +31,6 @@
 			<span class="cursor"></span>
 		</div>
 	</div>
-
 </div>
 
 <style>
@@ -118,7 +116,12 @@
 	}
 
 	@keyframes blink {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0; }
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0;
+		}
 	}
 </style>

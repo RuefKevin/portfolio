@@ -4,7 +4,6 @@
 </script>
 
 <div class="terminal">
-
 	<div class="block">
 		<div class="line">
 			<span class="prompt">❯</span>
@@ -30,7 +29,6 @@
 			<span class="cmd">cd <a href="/blog">..</a></span>
 		</div>
 	</div>
-
 </div>
 
 <style>

@@ -135,7 +135,7 @@ async fn blog_posts(State(state): State<AppState>) -> Result<Json<Vec<BlogPost>>
 
     let posts: Vec<BlogPost> = db_posts
         .into_iter()
-        .map(|p| map_blog_post(p))
+        .map(map_blog_post)
         .collect();
 
     Ok(Json(posts))
