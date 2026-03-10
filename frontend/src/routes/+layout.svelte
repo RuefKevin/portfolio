@@ -23,7 +23,7 @@
 		<nav>
 			<span class="nav-prefix">kevin@portfolio</span>
 			<span class="nav-sep">:</span>
-			{#each navItems as item}
+			{#each navItems as item (item.path)}
 				<a href={item.path} class="nav-item" class:active={page.url.pathname === item.path}>
 					{item.path === '/' ? '~' : item.label}
 				</a>

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { PageData } from './$types';
 	let { data } = $props();
 </script>
 
@@ -13,7 +12,7 @@
 
 	<div class="json">
 		<div class="json-line"><span class="bracket">{`{`}</span></div>
-		{#each Object.entries(data.contact) as [label, val], i}
+		{#each Object.entries(data.contact) as [label, val], i (label)}
 			<div class="json-line indent">
 				<span class="json-key">"{label}"</span>
 				<span class="colon">: </span>

@@ -16,14 +16,14 @@
 		</div>
 	</div>
 
-	{#each Object.entries(skills) as [category, items]}
+	{#each Object.entries(skills) as [category, items] (category)}
 		<div class="category">
 			<div class="category-head">
 				<span class="folder">drwxr-xr-x</span>
 				<span class="folder-name">{category}/</span>
 			</div>
 			<div class="items">
-				{#each items as skill}
+				{#each items as skill (skill)}
 					<span class="skill">{skill}</span>
 				{/each}
 			</div>
