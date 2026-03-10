@@ -26,6 +26,25 @@ struct DbProject
     technologies: String,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct BlogPost
+{
+    pub id: u32,
+    pub title: String,
+    pub slug: String,
+    pub content: String,
+    pub published_at: String,
+}
+
+struct DbBlogPost
+{
+    id: Option<i64>,
+    title: String,
+    slug: String,
+    content: String,
+    published_at: String,
+}
+
 #[derive(Clone)]
 pub struct AppState
 {
@@ -42,6 +61,8 @@ pub fn app(state: AppState, allowed_origins: Vec<HeaderValue>, rate_limit: bool)
     let router = Router::new()
         .route("/health", get(health))
         .route("/api/projects", get(projects))
+        .route("/api/blog", get(blog_posts))
+        .route("/api/blog/{slug}", get(blog_post_by_slug))
         .layer(cors)
         .layer(SetResponseHeaderLayer::overriding
         (
@@ -99,4 +120,54 @@ async fn projects(State(state): State<AppState>) -> Result<Json<Vec<Project>>, S
         .collect();
 
     Ok(Json(projects))
+}
+
+async fn blog_posts(State(state): State<AppState>) -> Result<Json<Vec<BlogPost>>, StatusCode>
+{
+    let db_posts = sqlx::query_as!
+    (
+        DbBlogPost,
+        "SELECT id, title, slug, content, published_at FROM blog_posts"
+    )
+    .fetch_all(&state.db)
+    .await
+    .map_err(|e| { tracing::error!("DB error: {}", e); StatusCode::INTERNAL_SERVER_ERROR })?;
+
+    let posts: Vec<BlogPost> = db_posts
+        .into_iter()
+        .map(|p| map_blog_post(p))
+        .collect();
+
+    Ok(Json(posts))
+}
+
+async fn blog_post_by_slug(
+    State(state): State<AppState>,
+    axum::extract::Path(slug): axum::extract::Path<String>,
+) -> Result<Json<BlogPost>, StatusCode>
+{
+    let db_post = sqlx::query_as!(
+        DbBlogPost,
+        "SELECT id, title, slug, content, published_at FROM blog_posts WHERE slug = ?",
+        slug
+    )
+    .fetch_optional(&state.db)
+    .await
+    .map_err(|e| { tracing::error!("DB error: {}", e); StatusCode::INTERNAL_SERVER_ERROR })?;
+
+    match db_post
+    {
+        Some(p) => Ok(Json(map_blog_post(p))),
+        None => Err(StatusCode::NOT_FOUND),
+    }
+}
+
+fn map_blog_post(p: DbBlogPost) -> BlogPost {
+    BlogPost {
+        id: p.id.unwrap_or(0) as u32,
+        title: p.title,
+        slug: p.slug,
+        content: p.content,
+        published_at: p.published_at,
+    }
 }

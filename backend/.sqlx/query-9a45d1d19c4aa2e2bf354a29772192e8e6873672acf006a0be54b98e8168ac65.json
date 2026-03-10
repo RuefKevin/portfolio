@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id, title, slug, content, published_at FROM blog_posts WHERE slug = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "title",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "slug",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "content",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "published_at",
+        "ordinal": 4,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "9a45d1d19c4aa2e2bf354a29772192e8e6873672acf006a0be54b98e8168ac65"
+}

@@ -16,11 +16,7 @@ export const load: PageServerLoad = async ({ fetch }) => {
 		const projects: Project[] = await response.json();
 		return { projects, error: false };
 	} catch (error) {
-		if (error instanceof Error) {
-			logError(`Fetch error [${env.BACKEND_URL}/api/projects]`, error);
-		} else {
-			logError(`Fetch error [${env.BACKEND_URL}/api/projects]: unknown`);
-		}
+		logError(`Fetch error [${env.BACKEND_URL}/api/projects]`, error);
 		return { projects: [] as Project[], error: true };
 	}
 };
