@@ -25,11 +25,23 @@
 	}
 
 	onMount(() => {
+		const seen = sessionStorage.getItem('intro-seen');
+
+		if (seen) {
+			// Animation überspringen
+			typed1 = cmd1;
+			typed2 = cmd2;
+			showWhoami = true;
+			showReadme = true;
+			return;
+		}
+
 		const stop1 = typeCommand(cmd1, () => {
 			showWhoami = true;
 			setTimeout(() => {
 				typeCommand(cmd2, () => {
 					showReadme = true;
+					sessionStorage.setItem('intro-seen', 'true');
 				});
 			}, 400);
 		});
@@ -55,7 +67,13 @@
 		<div class="block">
 			<div class="line">
 				<span class="prompt">❯</span>
-				<span class="cmd">{typed2}</span>
+				<span class="cmd">
+					{#if typed2.length <= 4}
+						{typed2}
+					{:else}
+						cat <span class="arg">{typed2.slice(4)}</span>
+					{/if}
+				</span>
 				{#if typed2.length > 0 && typed2.length < cmd2.length}
 					<span class="cursor"></span>
 				{/if}
@@ -205,5 +223,9 @@
 	.md-bullet {
 		color: var(--text-dim);
 		margin-right: 0.5rem;
+	}
+
+	.arg {
+		color: var(--yellow);
 	}
 </style>
