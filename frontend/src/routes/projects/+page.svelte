@@ -26,7 +26,7 @@
 				</div>
 				<div class="project-desc">{project.description}</div>
 				<div class="project-tags">
-					{#each project.technologies as tech}
+					{#each project.technologies as tech (tech)}
 						<span class="tag">#{tech}</span>
 					{/each}
 				</div>
