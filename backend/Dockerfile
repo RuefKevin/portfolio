@@ -1,5 +1,5 @@
 #========================================
-# Stage 1: Der Builder
+# Stage 1: Builder
 #========================================
 FROM rust:slim-bookworm AS builder
 
@@ -18,7 +18,7 @@ RUN rm -rf src
 COPY . .
 RUN touch src/main.rs && cargo build --release
 #========================================
-# Stage 2: Die Runtime
+# Stage 2: Runtime
 #========================================
 FROM debian:bookworm-slim
 
@@ -34,6 +34,6 @@ WORKDIR /home/appuser
 COPY --from=builder /usr/src/app/target/release/backend ./backend
 COPY --from=builder /usr/src/app/migrations ./migrations
 
-EXPOSE 3000
+EXPOSE 3001
 
 CMD [ "./backend" ]

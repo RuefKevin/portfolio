@@ -72,6 +72,7 @@ async fn test_security_headers_are_present()
         .unwrap();
 
     assert_eq!(response.headers().get("x-frame-options").unwrap(), "DENY");
+    assert_eq!(response.headers().get("x-content-type-options").unwrap(), "nosniff");
 }
 
 #[tokio::test]

@@ -3,7 +3,7 @@ use axum::extract::{Path, State};
 use tower_http::set_header::SetResponseHeaderLayer;
 use tower_http::cors::CorsLayer;
 use axum::http::{HeaderName, HeaderValue, Method};
-use serde::{Serialize};
+use serde::Serialize;
 use sqlx::sqlite::SqlitePool;
 use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
