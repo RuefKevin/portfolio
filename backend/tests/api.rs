@@ -1,4 +1,4 @@
-use backend::{app, AppState, Project};
+use backend::{app, AppState};
 
 use axum::
 {
@@ -9,6 +9,25 @@ use axum::
 use http_body_util::BodyExt;
 use sqlx::sqlite::SqlitePool;
 use tower::ServiceExt;
+
+#[derive(serde::Deserialize)]
+#[allow(dead_code)]
+struct TestProject {
+    id: u32,
+    name: String,
+    description: String,
+    technologies: Vec<String>,
+}
+
+#[derive(serde::Deserialize)]
+#[allow(dead_code)]
+struct TestBlogPost {
+    id: u32,
+    title: String,
+    slug: String,
+    content: String,
+    published_at: String,
+}
 
 fn test_app(pool: SqlitePool) -> Router 
 {
@@ -79,9 +98,86 @@ async fn test_get_projects_returns_db_data()
     assert_eq!(response.status(), StatusCode::OK);
 
     let body = response.into_body().collect().await.unwrap().to_bytes();
-    let projects: Vec<Project> = serde_json::from_slice(&body).unwrap();
+    let projects: Vec<TestProject> = serde_json::from_slice(&body).unwrap();
 
     assert_eq!(projects.len(), 1);
     assert_eq!(projects[0].name, "Sec-Portfolio");
     assert_eq!(projects[0].technologies, vec!["Rust", "Svelte"]);
+}
+
+#[tokio::test]
+async fn test_get_blog_posts_returns_db_data()
+{
+    let pool = setup_test_db().await;
+
+    sqlx::query("DELETE FROM blog_posts")
+        .execute(&pool)
+        .await
+        .expect("Failed to clear blog_posts table");
+
+    sqlx::query("INSERT INTO blog_posts (title, slug, content, published_at) VALUES ('Test Post', 'test-post', 'Test content', '2026-03-10')")
+        .execute(&pool)
+        .await
+        .expect("Failed to insert test blog post");
+
+    let router = test_app(pool);
+
+    let response = router
+        .oneshot(Request::builder().uri("/api/blog").body(Body::empty()).unwrap())
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let body = response.into_body().collect().await.unwrap().to_bytes();
+    let posts: Vec<TestBlogPost> = serde_json::from_slice(&body).unwrap();
+
+    assert_eq!(posts.len(), 1);
+    assert_eq!(posts[0].title, "Test Post");
+    assert_eq!(posts[0].slug, "test-post");
+}
+
+#[tokio::test]
+async fn test_get_blog_post_by_slug()
+{
+    let pool = setup_test_db().await;
+
+    sqlx::query("DELETE FROM blog_posts")
+        .execute(&pool)
+        .await
+        .expect("Failed to clear blog_posts table");
+
+    sqlx::query("INSERT INTO blog_posts (title, slug, content, published_at) VALUES ('Test Post', 'test-post', 'Test content', '2026-03-10')")
+        .execute(&pool)
+        .await
+        .expect("Failed to insert test blog post");
+
+    let router = test_app(pool);
+
+    let response = router
+        .oneshot(Request::builder().uri("/api/blog/test-post").body(Body::empty()).unwrap())
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let body = response.into_body().collect().await.unwrap().to_bytes();
+    let post: TestBlogPost = serde_json::from_slice(&body).unwrap();
+
+    assert_eq!(post.title, "Test Post");
+    assert_eq!(post.slug, "test-post");
+}
+
+#[tokio::test]
+async fn test_get_blog_post_by_slug_not_found()
+{
+    let pool = setup_test_db().await;
+    let router = test_app(pool);
+
+    let response = router
+        .oneshot(Request::builder().uri("/api/blog/nicht-vorhanden").body(Body::empty()).unwrap())
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
 }

@@ -7,11 +7,11 @@ use std::str::FromStr;
 #[tokio::main]
 async fn main()
 {
-    //Ops & Environment
+    // Initialize tracing and environment
     tracing_subscriber::fmt::init();
     dotenvy::dotenv().ok();
 
-    //Datenbank-Verbindung aufbauen
+    // Connect to database
     let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env");
     let pool = SqlitePoolOptions::new()
     .max_connections(1)
@@ -23,11 +23,13 @@ async fn main()
     .await
     .unwrap_or_else(|e| panic!("DB connect failed: {}", e));
 
+    // Run migrations
     sqlx::migrate!("./migrations").run(&pool).await
         .expect("Migrations fehlgeschlagen");
 
     let state = AppState { db: pool };
 
+    // Parse allowed CORS origins
     let allowed_origins: Vec<HeaderValue> = std::env::var("ALLOWED_ORIGINS")
     .unwrap_or_default()
     .split(',')
@@ -39,12 +41,13 @@ async fn main()
         tracing::warn!("ALLOWED_ORIGINS nicht gesetzt – CORS blockiert alle Browser-Requests");
     }
 
+    // Rate limiting (disabled locally, enable via RATE_LIMIT=true)
     let rate_limit = std::env::var("RATE_LIMIT")
         .unwrap_or_else(|_| "true".to_string()) == "true";
 
     let router = app(state, allowed_origins, rate_limit);
     
-    //Netzwerk-Binding
+    // Bind to network
     let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
     let server_addr = format!("{}:{}", host, port);
@@ -55,6 +58,6 @@ async fn main()
 
     tracing::info!("Server running on http://{}", server_addr);
 
-    //Server starten
+    //Start server
     axum::serve(listener, router).await.unwrap();
 }

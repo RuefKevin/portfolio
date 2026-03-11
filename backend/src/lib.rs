@@ -1,15 +1,16 @@
-use axum::{Json, Router, extract::State, http::StatusCode, routing::get};
+use axum::{Json, Router, http::StatusCode, routing::get};
+use axum::extract::{Path, State};
 use tower_http::set_header::SetResponseHeaderLayer;
 use tower_http::cors::CorsLayer;
 use axum::http::{HeaderName, HeaderValue, Method};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use sqlx::sqlite::SqlitePool;
 use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_governor::key_extractor::SmartIpKeyExtractor;
 use std::sync::Arc;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 pub struct Project
 {
     pub id: u32,
@@ -26,7 +27,7 @@ struct DbProject
     technologies: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 pub struct BlogPost
 {
     pub id: u32,
@@ -143,7 +144,7 @@ async fn blog_posts(State(state): State<AppState>) -> Result<Json<Vec<BlogPost>>
 
 async fn blog_post_by_slug(
     State(state): State<AppState>,
-    axum::extract::Path(slug): axum::extract::Path<String>,
+    Path(slug): Path<String>,
 ) -> Result<Json<BlogPost>, StatusCode>
 {
     let db_post = sqlx::query_as!(
@@ -162,8 +163,10 @@ async fn blog_post_by_slug(
     }
 }
 
-fn map_blog_post(p: DbBlogPost) -> BlogPost {
-    BlogPost {
+fn map_blog_post(p: DbBlogPost) -> BlogPost
+{
+    BlogPost
+    {
         id: p.id.unwrap_or(0) as u32,
         title: p.title,
         slug: p.slug,

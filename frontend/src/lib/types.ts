@@ -10,5 +10,5 @@ export interface BlogPost {
 	title: string;
 	slug: string;
 	content: string;
-	published_at: string;
+	published_at: string; // format: YYYY-MM-DD
 }

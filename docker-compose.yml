@@ -5,6 +5,7 @@ services:
       - db-data:/data
     user: root
     command: chown -R appuser:appuser /data
+    restart: "no"
 
   backend:
     build: ./backend
